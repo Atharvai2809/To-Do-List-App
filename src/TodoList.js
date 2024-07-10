@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { List, Input, Button, Modal, Form } from 'antd';
+import { List, Input, Button, Modal, Form, Pagination } from 'antd';
+import { PlusOutlined } from '@ant-design/icons'; // Import PlusOutlined icon
 import 'antd/dist/antd.css'; // Import Ant Design CSS
 import TodoItem from './TodoItem';
 
@@ -11,6 +12,8 @@ const TodoList = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5; // Number of tasks per page
 
   const showModal = (index) => {
     setEditIndex(index);
@@ -64,10 +67,16 @@ const TodoList = () => {
     });
   };
 
+  const onPageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const renderTasks = tasks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
       <h1 style={{ textAlign: 'center' }}>To Do List</h1>
-      <Form form={form}>
+      <Form form={form} layout="inline">
         <Form.Item
           name="task"
           rules={[{ required: true, message: 'Please input your task!' }]}
@@ -76,30 +85,37 @@ const TodoList = () => {
             placeholder="Enter task"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            style={{ width: '300px', marginRight: '10px' }}
+            style={{ width: '250px', marginRight: '10px' }}
           />
         </Form.Item>
-        <Button type="primary" onClick={addTask}>
+        <Button type="primary" onClick={addTask} icon={<PlusOutlined />}>
           Add Task
         </Button>
       </Form>
       <List
         style={{ marginTop: '20px', width: '300px' }}
         bordered
-        dataSource={tasks}
+        dataSource={renderTasks}
         renderItem={(item, index) => (
           <TodoItem
             key={index}
             item={item}
-            index={index}
+            index={(currentPage - 1) * pageSize + index}
             showModal={showModal}
             deleteTask={deleteTask}
           />
         )}
       />
+      <Pagination
+        style={{ marginTop: '20px', textAlign: 'center' }}
+        current={currentPage}
+        pageSize={pageSize}
+        total={tasks.length}
+        onChange={onPageChange}
+      />
       <Modal
         title="Edit Task"
-        open={isModalOpen}
+        visible={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
       >
@@ -121,3 +137,4 @@ const TodoList = () => {
 };
 
 export default TodoList;
+
