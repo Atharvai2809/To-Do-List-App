@@ -1,8 +1,5 @@
-// TodoItem.js
 import React from 'react';
-import { List, Button, Modal, Input } from 'antd';
-
-const { confirm } = Modal;
+import { List, Button } from 'antd';
 
 const TodoItem = ({ item, index, showModal, deleteTask }) => {
   return (
