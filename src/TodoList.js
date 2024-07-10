@@ -1,6 +1,5 @@
-// TodoList.js
 import React, { useState } from 'react';
-import { List, Input, Button, Modal } from 'antd';
+import { List, Input, Button, Modal, Form } from 'antd';
 import 'antd/dist/antd.css'; // Import Ant Design CSS
 import TodoItem from './TodoItem';
 
@@ -10,32 +9,46 @@ const TodoList = () => {
   const [tasks, setTasks] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [editIndex, setEditIndex] = useState(null);
-  const [visible, setVisible] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
 
   const showModal = (index) => {
     setEditIndex(index);
     setInputValue(tasks[index].text);
-    setVisible(true);
+    setIsModalOpen(true);
+    form.setFieldsValue({ task: tasks[index].text });
   };
 
   const handleOk = () => {
-    const updatedTasks = [...tasks];
-    updatedTasks[editIndex].text = inputValue;
-    setTasks(updatedTasks);
-    setVisible(false);
+    form.validateFields()
+      .then(values => {
+        const updatedTasks = [...tasks];
+        updatedTasks[editIndex].text = values.task;
+        setTasks(updatedTasks);
+        setIsModalOpen(false);
+        form.resetFields();
+      })
+      .catch(info => {
+        console.log('Validate Failed:', info);
+      });
   };
 
   const handleCancel = () => {
-    setVisible(false);
+    setIsModalOpen(false);
+    form.resetFields();
   };
 
   const addTask = () => {
-    if (!inputValue.trim()) {
-      return;
-    }
-    const newTask = { text: inputValue };
-    setTasks([...tasks, newTask]);
-    setInputValue('');
+    form.validateFields()
+      .then(values => {
+        const newTask = { text: values.task };
+        setTasks([...tasks, newTask]);
+        setInputValue('');
+        form.resetFields();
+      })
+      .catch(info => {
+        console.log('Validate Failed:', info);
+      });
   };
 
   const deleteTask = (index) => {
@@ -52,17 +65,24 @@ const TodoList = () => {
   };
 
   return (
-    <div className="App">
-      <h1>Todo List</h1>
-      <Input
-        placeholder="Enter task"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        style={{ width: '300px', marginRight: '10px' }}
-      />
-      <Button type="primary" onClick={addTask}>
-        Add Task
-      </Button>
+    <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
+      <h1 style={{ textAlign: 'center' }}>To Do List</h1>
+      <Form form={form}>
+        <Form.Item
+          name="task"
+          rules={[{ required: true, message: 'Please input your task!' }]}
+        >
+          <Input
+            placeholder="Enter task"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            style={{ width: '300px', marginRight: '10px' }}
+          />
+        </Form.Item>
+        <Button type="primary" onClick={addTask}>
+          Add Task
+        </Button>
+      </Form>
       <List
         style={{ marginTop: '20px', width: '300px' }}
         bordered
@@ -79,15 +99,22 @@ const TodoList = () => {
       />
       <Modal
         title="Edit Task"
-        visible={visible}
+        open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <Input
-          placeholder="Edit task"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
+        <Form form={form}>
+          <Form.Item
+            name="task"
+            rules={[{ required: true, message: 'Please input your task!' }]}
+          >
+            <Input
+              placeholder="Edit task"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );
