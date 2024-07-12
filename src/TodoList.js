@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { List, Input, Button, Modal, Form, Pagination } from 'antd';
-import { PlusOutlined } from '@ant-design/icons'; // Import PlusOutlined icon
+import { PlusOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css'; // Import Ant Design CSS
 import TodoItem from './TodoItem';
 
@@ -44,7 +44,7 @@ const TodoList = () => {
   const addTask = () => {
     form.validateFields()
       .then(values => {
-        const newTask = { text: values.task };
+        const newTask = { text: values.task, completed: false };
         setTasks([...tasks, newTask]);
         setInputValue('');
         form.resetFields();
@@ -65,6 +65,12 @@ const TodoList = () => {
         setTasks(updatedTasks);
       },
     });
+  };
+
+  const toggleCompleteTask = (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks[index].completed = !updatedTasks[index].completed;
+    setTasks(updatedTasks);
   };
 
   const onPageChange = (page) => {
@@ -93,7 +99,7 @@ const TodoList = () => {
         </Button>
       </Form>
       <List
-        style={{ marginTop: '20px', width: '300px' }}
+        style={{ marginTop: '20px', width: '450px' }} // Increased width
         bordered
         dataSource={renderTasks}
         renderItem={(item, index) => (
@@ -103,6 +109,7 @@ const TodoList = () => {
             index={(currentPage - 1) * pageSize + index}
             showModal={showModal}
             deleteTask={deleteTask}
+            toggleCompleteTask={toggleCompleteTask}
           />
         )}
       />
