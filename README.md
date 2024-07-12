@@ -6,6 +6,8 @@ A simple to-do list application built with React and Ant Design (antd).
 
 - Add new tasks
 - Mark tasks as complete
+- Edit existing tasks
+- Delete existing tasks
 - View a list of tasks
 
 ## Prerequisites
